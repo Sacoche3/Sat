@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Gestion des Utilisateurs et Retraits</title>
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <header>
+        <h1>Tableau de bord - Administration</h1>
+        <nav>
+            <ul>
+                <li><a href="#usersSection">Utilisateurs</a></li>
+                <li><a href="#withdrawalsSection">Demandes de Retrait</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Section des Utilisateurs -->
+        <section id="usersSection">
+            <h2>Liste des Utilisateurs</h2>
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>UID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les utilisateurs seront chargés ici -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Détails de l'utilisateur sélectionné -->
+        <section id="userDetails" class="hidden">
+            <h2>Détails de l'utilisateur</h2>
+            <form id="userForm">
+                <label for="name">Nom :</label>
+                <input type="text" id="name" name="name">
+
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" disabled>
+
+                <label for="balance">Balance :</label>
+                <input type="number" id="balance" name="balance">
+
+                <label for="uid">UID :</label>
+                <input type="text" id="uid" name="uid" disabled>
+
+                <button type="button" id="saveBtn">Sauvegarder les modifications</button>
+            </form>
+        </section>
+
+        <!-- Section des demandes de retrait -->
+        <section id="withdrawalsSection">
+            <h2>Demandes de Retrait</h2>
+            <table id="withdrawalsTable">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Montant</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les demandes de retrait seront chargées ici -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Import Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+        // Configuration de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBFREc4PyC6VTYgXN3eEV9_AYpVo6nkyco",
+            authDomain: "ciaxe-727b1.firebaseapp.com",
+            databaseURL: "https://ciaxe-727b1-default-rtdb.firebaseio.com",
+            projectId: "ciaxe-727b1",
+            storageBucket: "ciaxe-727b1.appspot.com",
+            messagingSenderId: "52732576686",
+            appId: "1:52732576686:web:70f5d27fc58bc5bd31fe3f"
+        };
+
+        // Initialisation de Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase();
+
+        // Récupération et affichage des utilisateurs
+        const usersRef = ref(database, 'users/');
+        onValue(usersRef, (snapshot) => {
+            const users = snapshot.val();
+            const usersTableBody = document.getElementById('usersTable').querySelector('tbody');
+            usersTableBody.innerHTML = ''; // Vider la table avant de la remplir
+
+            for (let uid in users) {
+                const user = users[uid];
+                const row = `
+                    <tr data-uid="${uid}" class="user-row">
+                        <td>${user.name}</td>
+                        <td><a href="#" class="user-email" data-uid="${uid}">${user.email}</a></td>
+                        <td>${uid}</td>
+                    </tr>
+                `;
+                usersTableBody.innerHTML += row;
+            }
+
+            // Ajouter un événement pour chaque email
+            document.querySelectorAll('.user-email').forEach(emailLink => {
+                emailLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const uid = emailLink.getAttribute('data-uid');
+                    afficherDetailsUtilisateur(uid);
+                });
+            });
+        });
+
+        // Afficher les détails de l'utilisateur sélectionné
+        function afficherDetailsUtilisateur(uid) {
+            const userDetailsSection = document.getElementById('userDetails');
+            const userForm = document.getElementById('userForm');
+            const userRef = ref(database, 'users/' + uid);
+
+            onValue(userRef, (snapshot) => {
+                const user = snapshot.val();
+                userForm.name.value = user.name;
+                userForm.email.value = user.email;
+                userForm.balance.value = user.balance || 0;
+                userForm.uid.value = uid;
+                userDetailsSection.classList.remove('hidden');
+            });
+        }
+
+        // Sauvegarder les modifications
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const userForm = document.getElementById('userForm');
+            const uid = userForm.uid.value;
+            const userRef = ref(database, 'users/' + uid);
+
+            // Mettre à jour les informations de l'utilisateur
+            update(userRef, {
+                name: userForm.name.value,
+                balance: parseFloat(userForm.balance.value)
+            }).then(() => {
+                alert('Modifications sauvegardées avec succès');
+            }).catch((error) => {
+                alert('Erreur lors de la sauvegarde : ' + error.message);
+            });
+        });
+
+        // Récupération et affichage des demandes de retrait
+        const withdrawalsRef = ref(database, 'withdrawals/');
+        onValue(withdrawalsRef, (snapshot) => {
+            const withdrawals = snapshot.val();
+            const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
+            withdrawalsTableBody.innerHTML = ''; // Vider la table avant de la remplir
+
+            for (let id in withdrawals) {
+                const withdrawal = withdrawals[id];
+                const row = `
+                    <tr data-id="${id}">
+                        <td>${withdrawal.email}</td>
+                        <td>${withdrawal.amount} FCFA</td>
+                        <td>${new Date(withdrawal.date).toLocaleDateString()}</td>
+                        <td><button class="approve-btn" data-id="${id}">Approuver</button></td>
+                    </tr>
+                `;
+                withdrawalsTableBody.innerHTML += row;
+            }
+
+            // Ajouter un événement pour approuver chaque demande de retrait
+            document.querySelectorAll('.approve-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const id = button.getAttribute('data-id');
+                    approuverRetrait(id);
+                });
+            });
+        });
+
+        // Approuver un retrait et le supprimer de la base de données
+        function approuverRetrait(id) {
+            const withdrawalRef = ref(database, 'withdrawals/' + id);
+
+            // Supprimer la demande de retrait après approbation
+            remove(withdrawalRef).then(() => {
+                alert('Retrait approuvé avec succès');
+            }).catch((error) => {
+                alert('Erreur lors de l\'approbation du retrait : ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire d'Inscription et de Connexion</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Lien vers le fichier CSS -->
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="form-toggle">
+                <button id="btnLogin" class="toggle-button">Connexion</button>
+                <button id="btnSignup" class="toggle-button">Inscription</button>
+            </div>
+            <form id="loginForm" class="form active" onsubmit="handleLogin(event)">
+                <h2>Connexion</h2>
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter</button>
+            </form>
+            <form id="signupForm" class="form" onsubmit="handleSignup(event)">
+                <h2>Inscription</h2>
+                <input type="text" id="signupName" placeholder="Nom" required>
+                <input type="email" id="signupEmail" placeholder="Email" required>
+                <input type="password" id="signupPassword" placeholder="Mot de passe" required>
+                <button type="submit">S'inscrire</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Importer les bibliothèques Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+        // Configuration de votre application Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBFREc4PyC6VTYgXN3eEV9_AYpVo6nkyco",
+            authDomain: "ciaxe-727b1.firebaseapp.com",
+            databaseURL: "https://ciaxe-727b1-default-rtdb.firebaseio.com",
+            projectId: "ciaxe-727b1",
+            storageBucket: "ciaxe-727b1.appspot.com",
+            messagingSenderId: "52732576686",
+            appId: "1:52732576686:web:70f5d27fc58bc5bd31fe3f"
+        };
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const database = getDatabase();
+
+        document.getElementById('btnLogin').addEventListener('click', function() {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('signupForm').classList.remove('active');
+        });
+
+        document.getElementById('btnSignup').addEventListener('click', function() {
+            document.getElementById('signupForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+        });
+
+        // Fonction d'inscription
+        window.handleSignup = function(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            // Créer un nouvel utilisateur avec Firebase Authentication
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Inscription réussie, ajouter des informations à la base de données
+                    const user = userCredential.user;
+                    set(ref(database, 'users/' + user.uid), {
+                        name: name,
+                        email: email,
+                        balance: 0 // Initialiser le solde à 0 lors de l'inscription
+                    }).then(() => {
+                        console.log("Informations utilisateur ajoutées à la base de données.");
+                        alert("Inscription réussie !");
+                        window.location.href = "balance.html"; // Redirection vers la page de solde
+                    }).catch((error) => {
+                        console.error("Erreur lors de l'ajout des informations à la base de données:", error);
+                        alert("Erreur lors de l'ajout des informations : " + error.message);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Erreur lors de l'inscription:", error);
+                    alert(error.message);
+                });
+        }
+
+        // Fonction de connexion
+        window.handleLogin = function(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Connexion de l'utilisateur avec Firebase Authentication
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Connexion réussie
+                    const user = userCredential.user;
+                    console.log("Connexion réussie:", user);
+                    alert("Connexion réussie !");
+                    window.location.href = "balance.html"; // Redirection vers la page de solde
+                })
+                .catch((error) => {
+                    console.error("Erreur lors de la connexion:", error);
+                    alert(error.message);
+                });
+        }
+    </script>
+</body>
+</html>

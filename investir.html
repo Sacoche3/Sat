@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investissement</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Lien vers le fichier CSS -->
+    <style>
+        .balance-section {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: white;
+            background-color: red;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .vip-selection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .vip-level {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 300px;
+            text-align: center;
+        }
+
+        .vip-level:hover {
+            background-color: #ddd;
+        }
+
+        .invest-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .invest-button:hover {
+            background-color: #45a049;
+        }
+
+        .total-earnings-info {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="balance-section">
+        Solde actuel : <span id="currentBalance">XOF 0</span>
+    </div>
+
+    <div class="vip-selection">
+        <!-- VIP Levels -->
+        <div class="vip-level" data-vip="1" data-amount="8500" data-daily-earnings="870" data-cycle="60">
+            <strong>VIP 1 - 8500 XOF</strong><br>
+            Revenus: 870 XOF/jour<br>
+            Cycle: 52200 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 26100</span><br>
+            <button class="invest-button" data-vip="1">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="2" data-amount="15000" data-daily-earnings="1700" data-cycle="60">
+            <strong>VIP 2 - 15000 XOF</strong><br>
+            Revenus: 1700 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 102000</span><br>
+            <button class="invest-button" data-vip="2">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="3" data-amount="25000" data-daily-earnings="2700" data-cycle="60">
+            <strong>VIP 3 - 25000 XOF</strong><br>
+            Revenus: 2700 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 162000</span><br>
+            <button class="invest-button" data-vip="3">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="4" data-amount="35000" data-daily-earnings="3500" data-cycle="60">
+            <strong>VIP 4 - 35000 XOF</strong><br>
+            Revenus: 3500 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 210000</span><br>
+            <button class="invest-button" data-vip="4">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="5" data-amount="48000" data-daily-earnings="4800" data-cycle="60">
+            <strong>VIP 5 - 48000 XOF</strong><br>
+            Revenus: 4800 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 288000</span><br>
+            <button class="invest-button" data-vip="5">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="6" data-amount="85000" data-daily-earnings="8500" data-cycle="60">
+            <strong>VIP 6 - 85000 XOF</strong><br>
+            Revenus: 8500 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 510000</span><br>
+            <button class="invest-button" data-vip="6">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="7" data-amount="280000" data-daily-earnings="29000" data-cycle="60">
+            <strong>VIP 7 - 280000 XOF</strong><br>
+            Revenus: 29000 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 1740000</span><br>
+            <button class="invest-button" data-vip="7">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="8" data-amount="356000" data-daily-earnings="37800" data-cycle="60">
+            <strong>VIP 8 - 356000 XOF</strong><br>
+            Revenus: 37800 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 2268000</span><br>
+            <button class="invest-button" data-vip="8">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="9" data-amount="450000" data-daily-earnings="46800" data-cycle="60">
+            <strong>VIP 9 - 450000 XOF</strong><br>
+            Revenus: 46800 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 2808000</span><br>
+            <button class="invest-button" data-vip="9">Investir</button>
+        </div>
+
+        <div class="vip-level" data-vip="10" data-amount="850000" data-daily-earnings="85780" data-cycle="60">
+            <strong>VIP 10 - 850000 XOF</strong><br>
+            Revenus: 85780 XOF/jour<br>
+            Cycle: 60 jours<br>
+            <span class="total-earnings">Revenus Totaux: XOF 5146800</span><br>
+            <button class="invest-button" data-vip="10">Investir</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBFREc4PyC6VTYgXN3eEV9_AYpVo6nkyco",
+            authDomain: "ciaxe-727b1.firebaseapp.com",
+            databaseURL: "https://ciaxe-727b1-default-rtdb.firebaseio.com",
+            projectId: "ciaxe-727b1",
+            storageBucket: "ciaxe-727b1.appspot.com",
+            messagingSenderId: "52732576686",
+            appId: "1:52732576686:web:70f5d27fc58bc5bd31fe3f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const database = getDatabase();
+
+        let userBalance = 0;
+
+        // Récupérer le solde de l'utilisateur
+        function getUserBalance() {
+            const user = auth.currentUser;
+            if (user) {
+                const userRef = ref(database, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    userBalance = data ? data.balance : 0;
+                    document.getElementById('currentBalance').innerText = `XOF ${userBalance}`;
+                });
+            }
+        }
+
+        // Fonction pour investir
+        function invest(vipData) {
+            const user = auth.currentUser;
+            if (user) {
+                const vipAmount = vipData.amount;
+
+                if (userBalance >= vipAmount) {
+                    // Soustraire le montant investi du solde actuel
+                    const newBalance = userBalance - vipAmount;
+
+                    // Mettre à jour les données de l'utilisateur dans Firebase
+                    const updates = {};
+                    updates['/users/' + user.uid + '/balance'] = newBalance;
+                    updates['/users/' + user.uid + '/vipStatus'] = vipData.level;
+                    updates['/users/' + user.uid + '/dailyEarnings'] = vipData.dailyEarnings;
+                    updates['/users/' + user.uid + '/cycle'] = vipData.cycle;
+                    updates['/users/' + user.uid + '/totalEarnings'] = vipData.dailyEarnings * vipData.cycle;
+
+                    update(ref(database), updates).then(() => {
+                        alert(`Investissement réussi dans le niveau VIP ${vipData.level}`);
+                        getUserBalance(); // Mettre à jour le solde affiché
+                    }).catch((error) => {
+                        console.error('Erreur lors de la mise à jour :', error);
+                    });
+                } else {
+                    alert("Solde insuffisant pour cet investissement.");
+                }
+            } else {
+                alert("Veuillez vous connecter pour investir.");
+            }
+        }
+
+        // Ajouter un écouteur sur les boutons "Investir"
+        document.querySelectorAll('.invest-button').forEach((button) => {
+            button.addEventListener('click', () => {
+                const vipLevel = button.getAttribute('data-vip');
+                const vipElement = document.querySelector(`.vip-level[data-vip="${vipLevel}"]`);
+                const vipAmount = parseInt(vipElement.getAttribute('data-amount'));
+                const dailyEarnings = parseInt(vipElement.getAttribute('data-daily-earnings'));
+                const cycle = parseInt(vipElement.getAttribute('data-cycle'));
+
+                const selectedVip = {
+                    level: vipLevel,
+                    amount: vipAmount,
+                    dailyEarnings: dailyEarnings,
+                    cycle: cycle
+                };
+
+                invest(selectedVip); // Appeler la fonction d'investissement
+            });
+        });
+
+        // Vérifier l'état de connexion de l'utilisateur et récupérer le solde actuel
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                getUserBalance();
+            } else {
+                alert("Vous devez être connecté pour investir.");
+                window.location.href = "index.html";
+            }
+        });
+    </script>
+
+</body>
+</html>

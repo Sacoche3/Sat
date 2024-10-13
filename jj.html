@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre Solde</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Lien vers le fichier CSS -->
+    <style>
+        .vip-container {
+            background-color: yellow;
+            color: black;
+            padding: 10px 25px;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .balance-container {
+            background-color: blue;
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 20px;
+            margin-bottom: 40px;
+        }
+
+        .earnings-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .fixed-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .footer-button:hover {
+            background-color: #45a049;
+        }
+
+        .action-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between; /* Align buttons in a row */
+            padding: 10px; /* Padding around buttons */
+        }
+
+        .action-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            flex: 1; /* Make buttons flexible */
+            margin: 0 5px; /* Margin between buttons */
+        }
+
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            .balance-container {
+                margin-top: 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column; /* Stack buttons vertically on small screens */
+            }
+
+            .action-button {
+                margin: 5px 0; /* Margin for stacked buttons */
+            }
+        }
+        .email-section {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: white;
+            background-color: blue;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Section VIP -->
+    <div class="vip-container">
+        <h2>VIP <span id="vipStatus">0</span></h2>
+    </div>
+    <div class="email-section">
+        Adresse e-mail : <span id="userEmail">non connecté</span>
+    </div>
+
+    <!-- Section solde avec gains journaliers et hebdomadaires -->
+    <div class="balance-container">
+        <h2>Votre Solde</h2>
+        <div id="balance" class="balance">XOF 0</div>
+        <div class="earnings-info">
+            <p>Gain gagné par jour: <span id="dailyEarnings">00 XOF</span></p>
+            <p>Gain gagné par semaine: <span id="weeklyEarnings">00 XOF</span></p>
+        </div>
+    </div>
+
+    <!-- Boutons d'action en ligne sous la section solde -->
+    <div class="action-buttons">
+        <button class="action-button" onclick="window.location.href='recharge.html'">Recharge</button>
+        <button class="action-button" onclick="window.location.href='retrait.html'">Retrait</button>
+        <button class="action-button" onclick="window.location.href='wallet.html'">Portefeuille</button>
+        <button class="action-button" onclick="window.location.href='myCard.html'">Ma carte</button>
+        <button class="action-button" onclick="window.location.href='historique_retrait.html'">His... Retrait</button>
+        <button class="action-button" onclick="window.location.href='historyRecharge.html'">His... Recharge</button>
+    </div>
+
+    <!-- Script Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBFREc4PyC6VTYgXN3eEV9_AYpVo6nkyco",
+            authDomain: "ciaxe-727b1.firebaseapp.com",
+            databaseURL: "https://ciaxe-727b1-default-rtdb.firebaseio.com",
+            projectId: "ciaxe-727b1",
+            storageBucket: "ciaxe-727b1.appspot.com",
+            messagingSenderId: "52732576686",
+            appId: "1:52732576686:web:70f5d27fc58bc5bd31fe3f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const database = getDatabase();
+
+        // Récupérer le solde, les gains et le statut VIP
+        function getBalanceAndEarnings() {
+            const user = auth.currentUser;
+            if (user) {
+                const userRef = ref(database, 'users/' + user.uid);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    const balance = data ? data.balance : 0;
+                    document.getElementById('balance').innerText = `XOF ${balance}`;
+
+                    // Mettre à jour le statut VIP
+                    const vipStatus = data && data.vipStatus ? data.vipStatus : '0';
+                    document.getElementById('vipStatus').innerText = vipStatus;
+
+                    // Vérifier et ajouter les gains si 24 heures sont passées
+                    const lastUpdate = data.lastUpdate ? new Date(data.lastUpdate) : null;
+                    const currentDate = new Date();
+                    if (!lastUpdate || has24HoursPassed(lastUpdate, currentDate)) {
+                        const totalEarnings = calculateTotalEarnings(vipStatus);
+                        const newBalance = balance + totalEarnings;
+                        updateBalance(user.uid, newBalance, currentDate);
+                        document.getElementById('dailyEarnings').innerText = `${totalEarnings} XOF`;
+                        document.getElementById('weeklyEarnings').innerText = `${totalEarnings * 7} XOF`;
+                    } else {
+                        const totalEarnings = calculateTotalEarnings(vipStatus);
+                        document.getElementById('dailyEarnings').innerText = `${totalEarnings} XOF`;
+                        document.getElementById('weeklyEarnings').innerText = `${totalEarnings * 7} XOF`;
+                    }
+                });
+            } else {
+                alert("Vous devez être connecté pour voir votre solde.");
+                window.location.href = "index.html";
+            }
+        }
+
+        function has24HoursPassed(lastUpdate, currentDate) {
+            const timeDifference = currentDate - lastUpdate;
+            return timeDifference >= (24 * 60 * 60 * 1000);
+        }
+
+        function calculateTotalEarnings(vipStatus) {
+            let totalEarnings = 0;
+            const vipLevels = vipStatus.split(',');
+
+            vipLevels.forEach(level => {
+                switch (level) {
+                    case '1': totalEarnings += 870; break;
+                    case '2': totalEarnings += 1600; break;
+                    case '3': totalEarnings += 2600; break;
+                    case '4': totalEarnings += 3700; break;
+                    case '5': totalEarnings += 4700; break;
+                    case '6': totalEarnings += 8500; break;
+                    case '7': totalEarnings += 29000; break;
+                    case '8': totalEarnings += 37800; break;
+                    case '9': totalEarnings += 46800; break;
+                    case '10': totalEarnings += 85780; break;
+                    default: break;
+                }
+            });
+
+            return totalEarnings;
+        }
+
+        function updateBalance(uid, newBalance, currentDate) {
+            const userRef = ref(database, 'users/' + uid);
+            update(userRef, {
+                balance: newBalance,
+                lastUpdate: currentDate.toISOString()
+            });
+        }
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                getBalanceAndEarnings();
+            } else {
+               window.location.href = "index.html"; // Redirection si l'utilisateur n'est pas connecté
+            }
+        });
+
+        // Gestion de la mise à jour de l'adresse e-mail
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').innerText = user.email;
+            } else {
+                document.getElementById('userEmail').innerText = 'non connecté';
+            }
+        });
+    </script>
+
+    <!-- Pied de page fixe avec des boutons d'action -->
+    <div class="fixed-footer">
+        <button class="footer-button" onclick="window.location.href='home.html'">Accueil</button>
+        <button class="footer-button" onclick="window.location.href='invest.html'">Investir</button>
+        <button class="footer-button" onclick="window.location.href='profile.html'">Profil</button>
+        <button class="footer-button" onclick="window.location.href='help.html'">Aide</button>
+    </div>
+</body>
+</html>
